@@ -4,11 +4,6 @@
 1. Make sure Docker is installed and running on your machine.
 2. Run start.sh at the base directory of the project.
 
-  **NOTE:** If you want to use your own Google API Key, please update this property in application.properties file before starting the application:
-
-```
-api.google.key=<API_KEY>
-```
 
 ## APIs
 
