@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -41,15 +42,15 @@ public class OrdersController {
 	}
 	
 	@PatchMapping(path = "/{id}", produces = { MediaType.APPLICATION_JSON_VALUE })
-    public SuccessResponse takeOrder(@PathVariable("id") Long id, @Valid @RequestBody TakeOrderRequest request)
+    public SuccessResponse takeOrder(@PathVariable("id") @NotNull Long id, @Valid @RequestBody TakeOrderRequest request)
     {
         ordersService.updateOrder(id, request);
         return new SuccessResponse(Constants.STATUS_SUCCESS);
     }
 	
 	@GetMapping
-    public List<OrderData> getOrders(@RequestParam @Min(1) Integer page,
-    		 @RequestParam @Min(1) Integer limit)
+    public List<OrderData> getOrders(@RequestParam @NotNull @Min(1) Integer page,
+    		 @RequestParam @NotNull @Min(1) Integer limit)
     {
         return ordersService.getOrders(page, limit);
     }

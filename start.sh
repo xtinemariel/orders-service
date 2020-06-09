@@ -2,6 +2,6 @@
 
 chmod +x gradlew
 
-./gradlew clean build -x test
+./gradlew clean build
 
 docker-compose up --build

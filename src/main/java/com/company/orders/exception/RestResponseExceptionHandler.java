@@ -27,53 +27,56 @@ public class RestResponseExceptionHandler {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RestResponseExceptionHandler.class);
 
-	@ExceptionHandler({ MethodArgumentNotValidException.class })
-    @ResponseBody
-    public ResponseEntity<ErrorResponse> handleBadRequestError(MethodArgumentNotValidException ex)
-    {
-        LOGGER.error("Bad request: ", ex);
-        BindingResult result = ex.getBindingResult();
-        List<FieldError> fieldErrors = result.getFieldErrors();
-        StringBuilder sb = new StringBuilder();
-        fieldErrors.forEach(fieldError -> {
-        	sb.append(fieldError.getField());
-        	sb.append(": ");
-        	sb.append(fieldError.getDefaultMessage());
-        	sb.append(";");
-        });
-        return new ResponseEntity<>(new ErrorResponse(sb.toString()), null, HttpStatus.BAD_REQUEST);
-    }
 	
+	@ExceptionHandler({ MethodArgumentNotValidException.class })
+	@ResponseBody
+	public ResponseEntity<ErrorResponse> handleBadRequestError(MethodArgumentNotValidException ex) {
+		LOGGER.error("Bad request: ", ex);
+		BindingResult result = ex.getBindingResult();
+		List<FieldError> fieldErrors = result.getFieldErrors();
+		StringBuilder sb = new StringBuilder();
+		fieldErrors.forEach(fieldError -> {
+			sb.append(fieldError.getField());
+			sb.append(": ");
+			sb.append(fieldError.getDefaultMessage());
+			sb.append(";");
+		});
+		return new ResponseEntity<>(new ErrorResponse(sb.toString()), null, HttpStatus.BAD_REQUEST);
+	}
+	 
+
+	@ExceptionHandler({ MethodArgumentTypeMismatchException.class })
+	public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+		String error = ex.getName() + " should be of type " + ex.getRequiredType().getName();
+		return new ResponseEntity<>(new ErrorResponse(error), null, HttpStatus.BAD_REQUEST);
+	}
+
 	@ExceptionHandler({ EntityNotFoundException.class })
 	@ResponseBody
-    public ResponseEntity<ErrorResponse> handleNotFoundError(EntityNotFoundException ex)
-    {
-        LOGGER.error("Entity not found: ", ex.getMessage());
-        return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), null, HttpStatus.NO_CONTENT);
-    }
-	
+	public ResponseEntity<ErrorResponse> handleNotFoundError(EntityNotFoundException ex) {
+		LOGGER.error("Entity not found: ", ex);
+		return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), null, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
 	@ExceptionHandler({ OrderTakenException.class })
-    @ResponseBody
-    public ResponseEntity<ErrorResponse> handleConflictError(Exception ex)
-    {
-        LOGGER.error("Conflict: ", ex);
-        return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), null, HttpStatus.CONFLICT);
-    }
-	
-	@ExceptionHandler({ MethodArgumentTypeMismatchException.class, MissingPathVariableException.class, MissingServletRequestParameterException.class })
-    @ResponseBody
-    public ResponseEntity<ErrorResponse> badRequestError(Exception ex)
-    {
-        LOGGER.error("Bad request: ", ex);
-        return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), null, HttpStatus.BAD_REQUEST);
-    }
-	
+	@ResponseBody
+	public ResponseEntity<ErrorResponse> handleConflictError(Exception ex) {
+		LOGGER.error("Conflict: ", ex);
+		return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), null, HttpStatus.CONFLICT);
+	}
+
+	@ExceptionHandler({ MissingPathVariableException.class, MissingServletRequestParameterException.class })
+	@ResponseBody
+	public ResponseEntity<ErrorResponse> badRequestError(Exception ex) {
+		LOGGER.error("Bad request: ", ex);
+		return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), null, HttpStatus.BAD_REQUEST);
+	}
+
 	@ExceptionHandler({ IOException.class, RestClientException.class, GoogleApiClientException.class, Exception.class })
-    @ResponseBody
-    public ResponseEntity<ErrorResponse> handleInternalError(Exception ex)
-    {
-        LOGGER.error("Internal Server Error: ", ex);
-        return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), null, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-	
+	@ResponseBody
+	public ResponseEntity<ErrorResponse> handleInternalError(Exception ex) {
+		LOGGER.error("Internal Server Error: ", ex);
+		return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), null, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
 }

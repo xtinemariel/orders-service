@@ -5,12 +5,12 @@ import javax.validation.constraints.Size;
 
 public class OrderRequest {
 
-	@NotNull(message = "Origin is a required parameter")
-	@Size(min = 2, max = 2, message = "Invalid length for origin")
+	@NotNull
+	@Size(min = 2, max = 2)
 	private String [] origin;
 	
-	@NotNull(message = "Destination is a required parameter")
-	@Size(min = 2, max = 2, message = "Invalid length for destination")
+	@NotNull
+	@Size(min = 2, max = 2)
 	private String [] destination;
 	
 	public String[] getOrigin() {
