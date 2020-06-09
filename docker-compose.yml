@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  mysqldb:
+    image: mysql:5.7
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpw
+      - MYSQL_DATABASE=ordersapp
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+	volumes:
+      - mysql-data:/var/lib/mysql/data
+      
+  order-services:
+    build: .
+    ports:
+       - 8080:8080
+    depends_on: 
+       - mysqldb
+    environment: 
+       - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/ordersapp
+       
+volumes:
+  mysql-data:
