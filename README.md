@@ -20,7 +20,7 @@ api.google.key=<API_KEY>
 ```
 {
     "origin": ["14.492447","121.014916"],
-	"destination": ["14.493829","121.014562"]
+    "destination": ["14.493829","121.014562"]
 }
 ```
 
@@ -52,7 +52,7 @@ api.google.key=<API_KEY>
 }
 ```
 
-###3. Get Orders
+### 3. Get Orders
  - HTTP Method: GET
  - URL path: /orders?page={page}&limit={limit}
  - Sample Request:
