@@ -1,6 +1,7 @@
 package com.company.orders.service;
 
 import static com.company.orders.utils.Constants.STATUS_OK;
+import static com.company.orders.utils.Constants.COMMA;
 
 import java.util.Collection;
 import java.util.List;
@@ -36,20 +37,24 @@ public class OrdersService {
 	}
 
 	public OrderData createOrder(OrderRequest orderRequest) {
-
 		DistanceMetricsResponse response = googleApiClientService.getDistanceMetrics(
-				String.join(",", orderRequest.getOrigin()), String.join(",", orderRequest.getDestination()));
+				String.join(COMMA, orderRequest.getOrigin()), String.join(COMMA, orderRequest.getDestination()));
 
 		if (response != null && STATUS_OK.equals(response.getStatus())) {
-			List<Integer> distances = response.getRows().stream().map(Row::getElements).flatMap(Collection::stream)
-					.filter(e -> STATUS_OK.equals(e.getStatus())).map(Element::getDistance).map(Distance::getValue)
+			List<Integer> distances = response.getRows()
+					.stream()
+					.map(Row::getElements)
+					.flatMap(Collection::stream)
+					.filter(e -> STATUS_OK.equals(e.getStatus()))
+					.map(Element::getDistance)
+					.map(Distance::getValue)
 					.collect(Collectors.toList());
 
 			if (!distances.isEmpty()) {
 				Integer distance = distances.stream().collect(Collectors.summingInt(Integer::intValue));
 				OrderData order = new OrderData();
-		        order.setDistance(distance);
-		        order.setStatus(OrderStatus.UNASSIGNED);
+				order.setDistance(distance);
+				order.setStatus(OrderStatus.UNASSIGNED);
 				return ordersRepository.saveAndFlush(order);
 			}
 		}

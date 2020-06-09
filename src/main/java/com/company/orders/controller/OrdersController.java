@@ -30,28 +30,26 @@ import com.company.orders.utils.Constants;
 public class OrdersController {
 
 	private OrdersService ordersService;
-	
-	public OrdersController (OrdersService ordersService)
-	{
+
+	public OrdersController(OrdersService ordersService) {
 		this.ordersService = ordersService;
 	}
-	
+
 	@PostMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
 	public OrderData createOrder(@Valid @RequestBody OrderRequest orderRequest) {
 		return ordersService.createOrder(orderRequest);
 	}
-	
+
 	@PatchMapping(path = "/{id}", produces = { MediaType.APPLICATION_JSON_VALUE })
-    public SuccessResponse takeOrder(@PathVariable("id") @NotNull Long id, @Valid @RequestBody TakeOrderRequest request)
-    {
-        ordersService.updateOrder(id, request);
-        return new SuccessResponse(Constants.STATUS_SUCCESS);
-    }
-	
+	public SuccessResponse takeOrder(@PathVariable("id") @NotNull Long id,
+			@Valid @RequestBody TakeOrderRequest request) {
+		ordersService.updateOrder(id, request);
+		return new SuccessResponse(Constants.STATUS_SUCCESS);
+	}
+
 	@GetMapping
-    public List<OrderData> getOrders(@RequestParam @NotNull @Min(1) Integer page,
-    		 @RequestParam @NotNull @Min(1) Integer limit)
-    {
-        return ordersService.getOrders(page, limit);
-    }
+	public List<OrderData> getOrders(@RequestParam @NotNull @Min(1) Integer page,
+			@RequestParam @NotNull @Min(1) Integer limit) {
+		return ordersService.getOrders(page, limit);
+	}
 }

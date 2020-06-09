@@ -49,14 +49,14 @@ public class OrdersServiceTest {
 
 	@Mock
 	private GoogleApiClientService googleApiClientService;
-	
+
 	@Mock
 	private Page<OrderData> orderPage;
 
 	private OrderRequest request;
 
 	private DistanceMetricsResponse response;
-	
+
 	private OrderData order;
 
 	private ObjectMapper mapper = new ObjectMapper();
@@ -67,15 +67,16 @@ public class OrdersServiceTest {
 		request = new OrderRequest();
 		request.setOrigin(new String[] { "14.492447", "121.014916" });
 		request.setDestination(new String[] { "14.493829", "121.014562" });
-		
+
 		order = new OrderData();
-        order.setDistance(152);
-        order.setStatus(OrderStatus.UNASSIGNED);
+		order.setDistance(152);
+		order.setStatus(OrderStatus.UNASSIGNED);
 	}
 
 	@Test
 	public void shouldCreateOrder() {
-		response = setupResponse("{ \"destination_addresses\": [ \"25 E Rodriguez Ave\" ], \"origin_addresses\": [ \"15415 E Rodriguez Ave\" ], \"rows\": [ { \"elements\": [ { \"distance\": { \"text\": \"0.2 km\", \"value\": 173 }, \"duration\": { \"text\": \"1 min\", \"value\": 69 }, \"status\": \"OK\" } ] } ], \"status\": \"OK\" }");
+		response = setupResponse(
+				"{ \"destination_addresses\": [ \"25 E Rodriguez Ave\" ], \"origin_addresses\": [ \"15415 E Rodriguez Ave\" ], \"rows\": [ { \"elements\": [ { \"distance\": { \"text\": \"0.2 km\", \"value\": 173 }, \"duration\": { \"text\": \"1 min\", \"value\": 69 }, \"status\": \"OK\" } ] } ], \"status\": \"OK\" }");
 		when(googleApiClientService.getDistanceMetrics(anyString(), anyString())).thenReturn(response);
 		when(ordersRepository.saveAndFlush(any())).thenReturn(order);
 
@@ -86,14 +87,16 @@ public class OrdersServiceTest {
 
 	@Test
 	public void shouldNotCreateOrderWhenDistancesIsEmpty() {
-		response = setupResponse("{ \"destination_addresses\": [ \"25 E Rodriguez Ave\" ], \"origin_addresses\": [ \"15415 E Rodriguez Ave\" ], \"rows\": [ { \"elements\": [ ] } ], \"status\": \"OK\" }");;
+		response = setupResponse(
+				"{ \"destination_addresses\": [ \"25 E Rodriguez Ave\" ], \"origin_addresses\": [ \"15415 E Rodriguez Ave\" ], \"rows\": [ { \"elements\": [ ] } ], \"status\": \"OK\" }");
+		;
 		when(googleApiClientService.getDistanceMetrics(anyString(), anyString())).thenReturn(response);
 		verify(ordersRepository, never()).saveAndFlush(any());
 		assertThrows(GoogleApiClientException.class, () -> {
 			service.createOrder(request);
 		});
 	}
-	
+
 	@Test
 	public void shouldNotCreateOrderWhenStatusIsNotOk() {
 		response = setupResponse("{ \"status\": \"DENIED\" }");
@@ -103,19 +106,19 @@ public class OrdersServiceTest {
 			service.createOrder(request);
 		});
 	}
-	
+
 	@Test
 	public void shouldUpdateOrder() {
 		when(ordersRepository.getOne(any())).thenReturn(order);
 		OrderData updatedOrder = new OrderData();
 		updatedOrder.setDistance(152);
-        updatedOrder.setStatus(OrderStatus.TAKEN);
+		updatedOrder.setStatus(OrderStatus.TAKEN);
 		when(ordersRepository.saveAndFlush(any())).thenReturn(updatedOrder);
-		
+
 		OrderData result = service.updateOrder(1L, new TakeOrderRequest());
 		assertEquals(OrderStatus.TAKEN, result.getStatus());
 	}
-	
+
 	@Test
 	public void shouldNotUpdateWhenOrderIsTaken() {
 		order.setStatus(OrderStatus.TAKEN);
@@ -124,7 +127,7 @@ public class OrdersServiceTest {
 			service.updateOrder(1L, new TakeOrderRequest());
 		});
 	}
-	
+
 	@Test
 	public void shouldNotUpdateWhenOrderIdNotFound() {
 		when(ordersRepository.getOne(any())).thenThrow(EntityNotFoundException.class);
@@ -132,53 +135,53 @@ public class OrdersServiceTest {
 			service.updateOrder(1L, new TakeOrderRequest());
 		});
 	}
-	
+
 	@Test
 	public void shouldGetOrders() {
 		List<OrderData> orders = getSampleOrders();
-		
+
 		ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-        when(orderPage.getContent()).thenReturn(orders);
-        when(ordersRepository.findAll(pageableCaptor.capture())).thenReturn(orderPage);
-        
-        List<OrderData> result = service.getOrders(1, 3);
+		when(orderPage.getContent()).thenReturn(orders);
+		when(ordersRepository.findAll(pageableCaptor.capture())).thenReturn(orderPage);
 
-        PageRequest pageable = (PageRequest) pageableCaptor.getValue();
-        verify(ordersRepository).findAll(pageableCaptor.capture());
+		List<OrderData> result = service.getOrders(1, 3);
 
-        assertEquals(0, pageable.getPageNumber());
-        assertEquals(3, pageable.getPageSize());
-        assertEquals(3, result.size());
+		PageRequest pageable = (PageRequest) pageableCaptor.getValue();
+		verify(ordersRepository).findAll(pageableCaptor.capture());
+
+		assertEquals(0, pageable.getPageNumber());
+		assertEquals(3, pageable.getPageSize());
+		assertEquals(3, result.size());
 	}
-	
+
 	@Test
 	public void shouldReturnEmptyListIfNoOrders() {
-        
-        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-        when(orderPage.getContent()).thenReturn(Collections.emptyList());
-        when(ordersRepository.findAll(pageableCaptor.capture())).thenReturn(orderPage);
-        
-        List<OrderData> result = service.getOrders(1, 3);
-        assertEquals(0, result.size());
+
+		ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+		when(orderPage.getContent()).thenReturn(Collections.emptyList());
+		when(ordersRepository.findAll(pageableCaptor.capture())).thenReturn(orderPage);
+
+		List<OrderData> result = service.getOrders(1, 3);
+		assertEquals(0, result.size());
 	}
 
 	private List<OrderData> getSampleOrders() {
 		List<OrderData> orders = new ArrayList<>();
-		
+
 		OrderData order2 = new OrderData();
-        order2.setDistance(111);
-        order2.setStatus(OrderStatus.UNASSIGNED);
-        
-        OrderData order3 = new OrderData();
-        order3.setDistance(11122);
-        order3.setStatus(OrderStatus.UNASSIGNED);
-        
+		order2.setDistance(111);
+		order2.setStatus(OrderStatus.UNASSIGNED);
+
+		OrderData order3 = new OrderData();
+		order3.setDistance(11122);
+		order3.setStatus(OrderStatus.UNASSIGNED);
+
 		orders.add(order);
 		orders.add(order2);
 		orders.add(order3);
 		return orders;
 	}
-	
+
 	public DistanceMetricsResponse setupResponse(String response) {
 		try {
 			return mapper.readValue(response, DistanceMetricsResponse.class);

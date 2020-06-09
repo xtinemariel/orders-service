@@ -30,44 +30,35 @@ public class OrdersServiceIntegrationTest {
 	private static final String ORIGIN_2 = "121.014916";
 
 	private static final String ORIGIN_1 = "14.492447";
-	
+
 	private static final String ORDERS_PATH = "/orders";
-	
+
 	private MockMvc mockMvc;
-	
+
 	private ObjectMapper mapper = new ObjectMapper();
-	
+
 	@Autowired
 	private WebApplicationContext applicationContext;
-	
+
 	@BeforeEach
-    public void init()
-    {
-        this.mockMvc = MockMvcBuilders
-                .webAppContextSetup(applicationContext)
-                .build();
-    }
-	
-	@Test
-    public void invokeGetOrdersSuccessfully() throws Exception
-    {
-        this.mockMvc
-                .perform(get(ORDERS_PATH + "?page=1&limit=2"))
-                .andExpect(status().isOk());
-    }
+	public void init() {
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(applicationContext).build();
+	}
 
 	@Test
-    public void invokeCreateOrderSuccessfully() throws Exception
-    {
+	public void invokeGetOrdersSuccessfully() throws Exception {
+		this.mockMvc.perform(get(ORDERS_PATH + "?page=1&limit=2")).andExpect(status().isOk());
+	}
+
+	@Test
+	public void invokeCreateOrderSuccessfully() throws Exception {
 		OrderRequest request = new OrderRequest();
-		request.setOrigin(new String[] {ORIGIN_1,ORIGIN_2});
-		request.setDestination(new String[] {DESTINATION_1,DESTINATION_2});
-        
-        this.mockMvc
-                .perform(post((mapper.writeValueAsString(request))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.distance", is(152)))
-                .andExpect(jsonPath("$.status", is(OrderStatus.UNASSIGNED.toString())));
-    }
-	
+		request.setOrigin(new String[] { ORIGIN_1, ORIGIN_2 });
+		request.setDestination(new String[] { DESTINATION_1, DESTINATION_2 });
+
+		this.mockMvc.perform(post((mapper.writeValueAsString(request)))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.distance", is(152)))
+				.andExpect(jsonPath("$.status", is(OrderStatus.UNASSIGNED.toString())));
+	}
+
 }
