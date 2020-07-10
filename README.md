@@ -1,6 +1,6 @@
 # orders-service
 
-## Starting up the application --
+## Starting up the application ----
 1. Make sure Docker is installed and running on your machine.
 2. Run start.sh at the base directory of the project.
 
